@@ -7,7 +7,6 @@ pd.set_option('display.width', 100000)
 
 
 class HourlyDemandSupply(object):
-    resource_path = "../resources/"
     generated_resource_path = "../resources-generated/"
 
     def __init__(self, path_to_xlsx):
