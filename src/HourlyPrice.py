@@ -13,16 +13,15 @@ class HourlyPrice:
         self.csv_path = csv_path
         os.makedirs(os.path.dirname(self.generated_resource_path), exist_ok=True)
 
-    def _mapDateToPrice(self, df, break_at=-1):
+    def _mapDateToPrice(self, df):
         DATE_TIME = 'DateTime'
-        df[DATE_TIME] = Series(np.zeros(df.shape[0]))
+        HOURS = 'Hours'
 
-        for i, row in df.iterrows():
-            datetime_object = datetime.strptime(row['Date'], '%m/%d/%Y')
-            hour = int(row['Hours'].split('-')[0])
-            df.at[DATE_TIME, i] = datetime_object.replace(hour=hour).strftime('%d.%m.%Y %H:%M:%S')
-            if i == break_at:
-                break
+        df[DATE_TIME] = Series(np.zeros(df.shape[0]))
+        df[HOURS] = df[HOURS].map(lambda hour: int(str(hour).split('-')[0]))
+        df[DATE_TIME] = df.apply(
+            lambda row: datetime.strptime(row.loc['Date'], '%m/%d/%Y').replace(hour=row.loc['Hours']).strftime(
+                '%d.%m.%Y %H:%M:%S'), axis=1)
 
         return df[[DATE_TIME, 'SYS']]
 
@@ -37,7 +36,7 @@ class HourlyPrice:
             priceing_data = pd.read_pickle(csv_pickle_path)
             selected_columns = ['Date', 'Day', 'Hours', 'SYS']
             priceing_data = priceing_data[selected_columns]
-            priceing_data = self._mapDateToPrice(priceing_data, break_at=-1)
+            priceing_data = self._mapDateToPrice(priceing_data)
             pd.to_pickle(priceing_data, file_path)
         else:
             priceing_data = pd.read_pickle(file_path)
