@@ -5,7 +5,8 @@ import ntpath
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 100000)
 
-class IntraDayData(object):
+
+class HourlyDemandSupply(object):
     resource_path = "../resources/"
 
     def __init__(self, path_to_xlsx):
@@ -26,9 +27,6 @@ class IntraDayData(object):
         else:
             table_buy, table_sell = pd.read_pickle(file_path)
 
-        # print(table_buy.iloc[-4:, :])
-        # print("--")
-        # print(table_sell.iloc[-4:, :])
         return table_buy, table_sell
 
     def import_file(self):
@@ -57,9 +55,9 @@ class IntraDayData(object):
             sell_curve_start_index = current_day[current_day[first_column] == 'Sell curve'].iloc[:, 0:1].index[0]
 
             buy_curve_data = self.get_curve(buy_curve_start_index, sell_curve_start_index, current_day,
-                                            first_column, index, last_index, correct_volume=True)
+                                            first_column, correct_volume=True)
             sell_curve_data = self.get_curve(sell_curve_start_index, current_day.shape[0], current_day,
-                                             first_column, index, last_index)
+                                             first_column)
 
             sell_curve_data = sell_curve_data[sell_curve_data[self.VOLUME_VALUE] >
                                               buy_curve_data[self.VOLUME_VALUE].min()]
@@ -79,11 +77,9 @@ class IntraDayData(object):
         return_table_sell = return_table_sell.T.fillna(method='ffill')
         return return_table_buy, return_table_sell
 
-    def get_curve(self, curve_index_start, curve_index_end, current_day, first_column, index, last_index,
-                  correct_volume=False):
+    def get_curve(self, curve_index_start, curve_index_end, current_day, first_column, correct_volume=False):
         curve_data = current_day.iloc[(curve_index_start + 1):curve_index_end, :]
 
-        # sell_curve_data = day_unparsed_form_pickle.iloc[(sell_curve_start_index + 1):, 0:2]
         col_volume_values = 'Volume value'
         col_price_values = curve_data.columns[1]
 
