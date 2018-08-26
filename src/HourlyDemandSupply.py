@@ -8,6 +8,7 @@ pd.set_option('display.width', 100000)
 
 class HourlyDemandSupply(object):
     resource_path = "../resources/"
+    generated_resource_path = "../resources-generated/"
 
     def __init__(self, path_to_xlsx):
         self.path_to_xlsx = path_to_xlsx
@@ -17,8 +18,8 @@ class HourlyDemandSupply(object):
     def process(self):
         file_name = ntpath.basename(self.path_to_xlsx)
         file_name = file_name.split('.')[0] + '_converted_pickle'
-        file_path = self.resource_path + file_name
-        os.makedirs(os.path.dirname(self.resource_path), exist_ok=True)
+        file_path = self.generated_resource_path + file_name
+        os.makedirs(os.path.dirname(self.generated_resource_path), exist_ok=True)
         if not os.path.exists(file_path):
             priceing_data = self.import_file()
             table_buy, table_sell = self.get_hourly_price_data(priceing_data)
@@ -33,8 +34,8 @@ class HourlyDemandSupply(object):
         os.makedirs(os.path.dirname(self.path_to_xlsx), exist_ok=True)
         file_name = ntpath.basename(self.path_to_xlsx)
         file_name = file_name.split('.')[0] + '_pickle'
-        file_path = self.resource_path + file_name
-        os.makedirs(os.path.dirname(self.resource_path), exist_ok=True)
+        file_path = self.generated_resource_path + file_name
+        os.makedirs(os.path.dirname(self.generated_resource_path), exist_ok=True)
         if not os.path.exists(file_path):
             csv = pd.read_excel(self.path_to_xlsx)
             pd.to_pickle(csv, file_path)
@@ -84,7 +85,7 @@ class HourlyDemandSupply(object):
         col_price_values = curve_data.columns[1]
 
         # Move volume data to separate column
-        curve_data[col_volume_values] = curve_data.loc[
+        curve_data.loc[:, col_volume_values] = curve_data.loc[
             curve_data[first_column] == col_volume_values][col_price_values]
         curve_data.set_value(curve_data.loc[
                                  curve_data[first_column] == col_volume_values].index,
