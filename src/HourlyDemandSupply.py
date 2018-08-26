@@ -86,14 +86,10 @@ class HourlyDemandSupply(object):
         # Move volume data to separate column
         curve_data.loc[:, col_volume_values] = curve_data.loc[
             curve_data[first_column] == col_volume_values][col_price_values]
-        curve_data.set_value(curve_data.loc[
-                                 curve_data[first_column] == col_volume_values].index,
-                             col_price_values, 0)
-        curve_data.set_value(curve_data.loc[
-                                 curve_data[col_volume_values] == float('nan')].index,
-                             col_price_values, 0)
+        curve_data.at[curve_data.loc[curve_data[first_column] == col_volume_values].index, col_price_values] = 0
+        curve_data.at[curve_data.loc[curve_data[col_volume_values] == float('nan')].index, col_price_values] = 0
         # Price and volume numbers to same row
-        curve_data[col_volume_values] = curve_data[col_volume_values].shift(-1)
+        curve_data.loc[:, col_volume_values] = curve_data[col_volume_values].shift(-1)
         curve_data = curve_data.drop([first_column], axis=1)
         # Remove rows containing NaN values
         curve_data = curve_data.dropna().reset_index(drop=True)
