@@ -7,18 +7,18 @@ pd.set_option('display.width', 100000)
 
 
 class HourlyDemandSupply(object):
-    generated_resource_path = "../resources-generated/"
+    generated_resource_path = "../resources-generated/demand_supply/"
 
     def __init__(self, path_to_xlsx):
         self.path_to_xlsx = path_to_xlsx
         self.PRICE_VALUE = 'PRICE_VALUE'
         self.VOLUME_VALUE = 'VOLUME_VALUE'
+        os.makedirs(os.path.dirname(self.generated_resource_path), exist_ok=True)
 
     def process(self):
         file_name = ntpath.basename(self.path_to_xlsx)
         file_name = file_name.split('.')[0] + '_converted_pickle'
         file_path = self.generated_resource_path + file_name
-        os.makedirs(os.path.dirname(self.generated_resource_path), exist_ok=True)
         if not os.path.exists(file_path):
             priceing_data = self.import_file()
             table_buy, table_sell = self.get_hourly_price_data(priceing_data)
